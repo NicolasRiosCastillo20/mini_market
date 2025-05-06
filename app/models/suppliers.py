@@ -8,7 +8,5 @@ class Supplier(Base):
     id_supplier = Column(Integer, primary_key=True, index=True)
     suppliers = Column(String(255))
     telephone = Column(String(100))
-
-    # category = relationship("category", back_populates="product")
-    # saledetail = relationship('saledetail', back_populates='product')
+# se borran 2 lineas de código
 
