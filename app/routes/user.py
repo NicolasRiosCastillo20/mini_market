@@ -16,6 +16,7 @@ def get_users(db: Session = Depends(get_db)):
 
 @router.post("/", response_model=UserOut)
 def create_user(user_data: UserCreate, db: Session = Depends(get_db)):
+   
     # Verificar si ya existe el email
     user_exist = db.query(User).filter(User.email == user_data.email).first()
     if user_exist:
