@@ -12,7 +12,5 @@ class Product(Base):
     stock = Column(Integer)
     id_category = Column(Integer, ForeignKey('category.id_category'))
 
-    category = relationship("category", back_populates="product")
-    saledetail = relationship('saledetail', back_populates='product')
 
 

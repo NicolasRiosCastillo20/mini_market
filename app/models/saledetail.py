@@ -10,6 +10,3 @@ class SaleDetail(Base):
     id_product = Column(Integer, ForeignKey('product.id_product'))
     quantity = Column(Integer)
     subtotal = Column(Float)
-
-    saledetail = relationship('sale', back_populates='saledetail')
-    produt = relationship('product', back_populates='saledetail')

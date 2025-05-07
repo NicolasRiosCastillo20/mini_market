@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional
 from datetime import Date
-from app.models.shopping import Shopping
+# from app.models.shopping import Shopping
 
 class ShoppingCreate(BaseModel):
     Shopping_date: Optional[Date] = None

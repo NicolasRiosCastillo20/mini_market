@@ -1,5 +1,4 @@
 from sqlalchemy import Column, Integer, String, ForeignKey,Float
-from sqlalchemy.orm import relationship
 from app.config.db import Base
 
 class ShoppingDetail(Base): 
@@ -10,5 +9,3 @@ class ShoppingDetail(Base):
     quantity = Column(Integer)
     subtotal = Column(Float)
 
-    shopping = relationship('shopping', back_populates='shoppingDetail')
-    product = relationship('product', back_populates='shoppingDetail')
