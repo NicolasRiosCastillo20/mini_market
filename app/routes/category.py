@@ -17,6 +17,11 @@ def get_categorys(db: Session = Depends(get_db)):
 @router.get("/{id_category}", response_model=CategoryOut)
 def get_category(id_category:int,db: Session = Depends(get_db)):
 
+    category_exist = db.query(Category).filter(Category.id_category == id_category).first()
+
+    if not category_exist:
+        raise HTTPException(status_code=400, detail="no existe la categoria")
+
     return db.query(Category).filter(Category.id_category == id_category).first()
 
 
@@ -60,7 +65,7 @@ def delete_category(id_category: int, db: Session = Depends(get_db)):
      category_exist = db.query(Category).filter(Category.id_category == id_category).first()
 
      if not category_exist:
-        raise HTTPException(status_code=400, detail="no existe la categoria la categoria")
+        raise HTTPException(status_code=400, detail="no existe la categoria")
      
      db.delete(category_exist)
      db.commit()
