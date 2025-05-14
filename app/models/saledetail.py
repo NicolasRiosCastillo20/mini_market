@@ -12,3 +12,4 @@ class SaleDetail(Base):
     subtotal = Column(Float)
 
     sale = relationship("Sale", back_populates="details")
+    product = relationship("Product", back_populates="details")

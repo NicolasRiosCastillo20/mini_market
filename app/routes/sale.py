@@ -16,7 +16,7 @@ def get_sales(db:Session = Depends(get_db)):
 
 @router.get('/{id_sale}', response_model=SaleFull)
 def get_sale(id_sale:int, db:Session = Depends(get_db)):
-    sale = db.query(Sale).options(joinedload(Sale.details)).filter(Sale.id_sale == id_sale).first()    
+    sale = db.query(Sale).options(joinedload(Sale.details).joinedload(SaleDetail.product)).filter(Sale.id_sale == id_sale).first()   
     if not sale: 
         raise HTTPException(status_code=404, detail="Venta no encontrada")
     return sale

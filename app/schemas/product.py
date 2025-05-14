@@ -15,5 +15,10 @@ class ProductOut(BaseModel):
     stock: int
     id_category: int
 
+
+class ProductInfoSale(BaseModel):
+    product: str
+    sale_price: float
+
     class Config:
         orm_mode = True
