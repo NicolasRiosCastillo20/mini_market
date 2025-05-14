@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.routes import user,product,category
+from app.routes import user,product,category, sale
 from app.config.db import Base, engine
 
 app = FastAPI()
@@ -11,6 +11,7 @@ Base.metadata.create_all(bind=engine)
 app.include_router(user.router)
 app.include_router(product.router)
 app.include_router(category.router)
+app.include_router(sale.router)
 
 
 

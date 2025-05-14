@@ -9,3 +9,6 @@ class Sale(Base):
     datesale = Column(Date)
     totalsale = Column(Float)
 
+
+    details = relationship("SaleDetail", back_populates="sale")
+

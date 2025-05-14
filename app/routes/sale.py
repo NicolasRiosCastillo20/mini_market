@@ -1,0 +1,62 @@
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session, joinedload
+from app.models.sale import Sale
+from app.schemas.sale import SaleCreate, SaleOut, SaleFull
+from app.models.saledetail import SaleDetail
+from app.models.product import Product
+from app.config.db import get_db
+from typing import List
+
+router = APIRouter(prefix='/sale', tags=['sale'])
+
+@router.get('/', response_model=List[SaleOut])
+def get_sales(db:Session = Depends(get_db)):
+    return db.query(Sale).all()
+
+
+@router.get('/{id_sale}', response_model=SaleFull)
+def get_sale(id_sale:int, db:Session = Depends(get_db)):
+    sale = db.query(Sale).options(joinedload(Sale.details)).filter(Sale.id_sale == id_sale).first()    
+    if not sale: 
+        raise HTTPException(status_code=404, detail="Venta no encontrada")
+    return sale
+
+
+@router.post('/', response_model=SaleOut)
+def create_sale(sale_data:SaleCreate ,db:Session = Depends(get_db)):
+    new_sale = Sale(
+        datesale = sale_data.datesale,
+        totalsale = 0.0
+    )
+
+    db.add(new_sale)
+    db.commit()
+    db.refresh(new_sale)
+
+    total = 0.0
+
+    for detail in sale_data.details:
+        product = db.query(Product).filter(Product.id_product == detail.id_product).first()
+
+        if not product:
+            raise ValueError(f"Producto con id {detail.id_product} no existe")
+        
+        subtotal = product.sale_price * detail.quantity
+        total+= subtotal
+
+        new_detail = SaleDetail(
+            id_sale = new_sale.id_sale,
+            id_product = detail.id_product,
+            quantity = detail.quantity,
+            subtotal = subtotal
+        )
+
+        db.add(new_detail)
+    
+    new_sale.totalsale = total
+    db.commit()
+    db.refresh(new_sale)
+
+    return new_sale
+            
+

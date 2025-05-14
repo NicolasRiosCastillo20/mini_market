@@ -1,17 +1,21 @@
 from pydantic import BaseModel
-from typing import Optional
-from datetime import datetime
-from app.models.sale import Sale
+from typing import Optional, List
+from datetime import date
+from .saledetail import SaleDetailCreate, SaleDetailOut
 
 class SaleCreate(BaseModel):
-    date: Optional[datetime] = None
-    totalsale: float = 0.0
+    datesale: Optional[date] = None
+    totalsale: float
+    details: List[SaleDetailCreate]
 
 class SaleOut(BaseModel):
-    id: int
-    date: Optional[datetime] = None
-    totalsale: float = 0.0
-
+    id_sale: int
+    datesale: Optional[date]
+    totalsale: float
 
     class Config:
         orm_mode = True
+
+
+class SaleFull(SaleOut):
+    details: List[SaleDetailOut]
