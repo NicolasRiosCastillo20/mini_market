@@ -42,7 +42,7 @@ def create_sale(sale_data:SaleCreate ,db:Session = Depends(get_db)):
             raise ValueError(f"Producto con id {detail.id_product} no existe")
         
         subtotal = product.sale_price * detail.quantity
-        total+= subtotal
+        total += subtotal
 
         new_detail = SaleDetail(
             id_sale = new_sale.id_sale,
