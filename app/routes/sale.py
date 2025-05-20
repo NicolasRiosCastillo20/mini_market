@@ -35,6 +35,8 @@ def create_sale(sale_data:SaleCreate ,db:Session = Depends(get_db)):
 
     total = 0.0
 
+    # Verificar si los productos existen y calcular el subtotal y el total de la venta
+
     for detail in sale_data.details:
         product = db.query(Product).filter(Product.id_product == detail.id_product).first()
 
@@ -42,7 +44,17 @@ def create_sale(sale_data:SaleCreate ,db:Session = Depends(get_db)):
             raise ValueError(f"Producto con id {detail.id_product} no existe")
         
         subtotal = product.sale_price * detail.quantity
-        total+= subtotal
+        total += subtotal
+
+        # Actualizar el stock del producto
+
+        if product.stock < detail.quantity:
+            raise ValueError(f"Stock insuficiente para el producto {product.product}")
+        product.stock -= detail.quantity
+        db.commit()
+        db.refresh(product)
+
+        
 
         new_detail = SaleDetail(
             id_sale = new_sale.id_sale,
