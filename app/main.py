@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.routes import user,product,category, sale
+from app.routes import user,product,category, sale, shopping
 from app.config.db import Base, engine
 
 app = FastAPI()
@@ -12,6 +12,7 @@ app.include_router(user.router)
 app.include_router(product.router)
 app.include_router(category.router)
 app.include_router(sale.router)
+app.include_router(shopping.router)
 
 
 

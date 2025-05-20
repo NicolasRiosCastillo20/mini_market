@@ -11,3 +11,6 @@ class Shopping(Base):
     total_shopping = Column(Float)
 
 
+    details = relationship("ShoppingDetail", back_populates="shopping")
+
+
