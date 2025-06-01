@@ -12,5 +12,6 @@ class Shopping(Base):
 
 
     details = relationship("ShoppingDetail", back_populates="shopping")
+    supplier = relationship("Supplier", back_populates="shopping")
 
 

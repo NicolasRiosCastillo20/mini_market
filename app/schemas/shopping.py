@@ -4,6 +4,7 @@ from datetime import date
 from .shoppingDetail import ShoppingDetailCreate, ShoppingDetailOut
 
 class ShoppingCreate(BaseModel):
+    id_supplier: int = None
     shopping_date: Optional[date] = None
     total_shopping: float
     details: list[ShoppingDetailCreate]

@@ -4,22 +4,26 @@ from app.models.shopping import Shopping
 from app.schemas.shopping import ShoppingCreate, ShoppingOut, ShoppingFull
 from app.models.shoppingDetail import ShoppingDetail
 from app.models.product import Product
+from app.models.suppliers import Supplier
 from app.config.db import get_db
 from typing import List
 
 router = APIRouter(prefix='/shopping', tags=['shopping'])
 
+# Llamar compras
+
 @router.get('/', response_model=List[ShoppingOut])
 def get_shoppings(db:Session = Depends(get_db)):
     return db.query(Shopping).all()
 
+# Crear compra
 
 @router.post('/', response_model=ShoppingOut)
-def create_shopping(shopping_data:ShoppingCreate, db:Session = Depends(get_db)):
+def create_shopping(shopping_data: ShoppingCreate, db: Session = Depends(get_db)):
     new_shopping = Shopping(
-        id_supplier = 1,
-        shopping_date = shopping_data.shopping_date,
-        total_shopping = shopping_data.total_shopping
+        id_supplier=shopping_data.id_supplier,
+        shopping_date=shopping_data.shopping_date,
+        total_shopping=shopping_data.total_shopping
     )
 
     db.add(new_shopping)
@@ -28,33 +32,35 @@ def create_shopping(shopping_data:ShoppingCreate, db:Session = Depends(get_db)):
 
     total = 0.0
 
+    # Verificar si los productos existen y calcular el subtotal y el total de la compra
+
     for detail in shopping_data.details:
-        product =  db.query(Product).filter(Product.id_product == detail.id_product).first()
+        product = db.query(Product).filter(Product.id_product == detail.id_product).first()
 
         if not product:
-            raise ValueError(f"Producto con id {detail.id_product} no existe")
+            raise HTTPException(status_code=404, detail=f"Producto con id {detail.id_product} no existe")
         
         subtotal = product.shopping_price * detail.quantity
         total += subtotal
+
+        # Actualizar el stock del producto
 
         product.stock += detail.quantity
         db.commit()
         db.refresh(product)
 
+        # Crear detalle de compra
 
         new_detail = ShoppingDetail(
-            id_shopping = new_shopping.id_shopping,
-            id_product = detail.id_product,
-            quantity = detail.quantity,
-            subtotal = subtotal
+            id_shopping=new_shopping.id_shopping,
+            id_product=detail.id_product,
+            quantity=detail.quantity,
+            subtotal=subtotal
         )
-
         db.add(new_detail)
 
     new_shopping.total_shopping = total
     db.commit()
     db.refresh(new_shopping)
-    
+
     return new_shopping
-
-

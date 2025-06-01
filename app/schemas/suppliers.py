@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from datetime import Date
+from datetime import date
 from app.models.suppliers import Supplier
 
 class SupplierCreate(BaseModel):
