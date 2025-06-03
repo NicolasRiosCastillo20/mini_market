@@ -11,4 +11,4 @@ class ShoppingDetail(Base):
     subtotal = Column(Float)
 
     shopping = relationship("Shopping", back_populates="details")
-
+    product = relationship("Product", back_populates="shoppingDetail")

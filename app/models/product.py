@@ -13,6 +13,7 @@ class Product(Base):
     id_category = Column(Integer, ForeignKey('category.id_category'))
 
     details = relationship("SaleDetail", back_populates="product")
+    shoppingDetail = relationship("ShoppingDetail", back_populates="product")
 
 
 
