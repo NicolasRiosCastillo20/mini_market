@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Form
+from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session, joinedload
 from app.models.sale import Sale
 from app.schemas.sale import SaleCreate, SaleOut, SaleFull
@@ -26,7 +27,7 @@ def get_sale(id_sale:int, db:Session = Depends(get_db)):
 
 # Crear venta
 
-@router.post('/', response_model=SaleOut)
+@router.post('/ventas/registrar', response_model=SaleOut)
 def create_sale(sale_data:SaleCreate ,db:Session = Depends(get_db)):
     new_sale = Sale(
         datesale = sale_data.datesale,
@@ -75,4 +76,5 @@ def create_sale(sale_data:SaleCreate ,db:Session = Depends(get_db)):
 
     return new_sale
             
+
 

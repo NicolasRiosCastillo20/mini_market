@@ -1,24 +1,48 @@
-from fastapi import FastAPI, Request, Form
+from fastapi import FastAPI, Request, Form, APIRouter, Depends
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
+from datetime import datetime
+from app.config.db import get_db
+from sqlalchemy.orm import Session
+from app.models.product import Product
+from app.models.sale import Sale
+from app.models.saledetail import SaleDetail
 from app.routes import user,product,category, sale, shopping, suppliers
-from app.config.db import Base, engine
+from app.config.db import Base, engine, SessionLocal
 
 
 app = FastAPI()
 
+router = APIRouter()
+
 templates = Jinja2Templates(directory="app/templates")
+
+# Montar carpeta static
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Configuración de la ruta para la página de inicio
 
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
-    return templates.TemplateResponse("home.html", {"request": request, "title": "Home Page"})
+    return templates.TemplateResponse("home.html", {"request": request, "current_year": datetime.now().year, "title": "Home Page"})
 
-@app.get("/ventas.html", response_class=HTMLResponse)
-async def ventas(request: Request):
-    return templates.TemplateResponse("ventas.html", {"request": request, "title": "Ventas"})
+# Configuración de la ruta para la página de ventas
+
+@app.get("/ventas", response_class=HTMLResponse)
+async def get_ventas(request: Request):
+    return templates.TemplateResponse("ventas.html", {"request": request})
+
+@app.get("/ventas/crear", response_class=HTMLResponse)
+def create_venta(request: Request):
+    db = SessionLocal()
+    products = db.query(Product).all() 
+    return templates.TemplateResponse("ventas.html", {"request": request, "products": products})
+
+@app.get("/productos", response_class=HTMLResponse)
+async def get_productos(request: Request):
+    return templates.TemplateResponse("productos.html", {"request": request}) 
 
 
 # @app.get("/", response_class=HTMLResponse)
@@ -35,6 +59,47 @@ async def ventas(request: Request):
 #             "error": "Credenciales incorrectas"
 #         })
 
+@app.post("/ventas/registrar/formulario")
+def crear_venta_formulario(
+    fecha: str = Form(...),
+    products: list[int] = Form(...),
+    quantity: list[int] = Form(...),
+    total_general: float = Form(...),
+    db: Session = Depends(get_db)
+):
+    nueva_venta = Sale(datesale=fecha, totalsale=0.0)
+    db.add(nueva_venta)
+    db.commit()
+    db.refresh(nueva_venta)
+
+    total = 0.0
+
+    for id_producto, cantidad in zip(products, quantity):
+        producto = db.query(Product).filter(Product.id_product == id_producto).first()
+        if not producto:
+            raise ValueError(f"Producto con ID {id_producto} no existe")
+        if producto.stock < cantidad:
+            raise ValueError(f"Stock insuficiente para el producto {producto.product}")
+
+        subtotal = producto.sale_price * cantidad
+        total += subtotal
+
+        detalle = SaleDetail(
+            id_sale=nueva_venta.id_sale,
+            id_product=id_producto,
+            quantity=cantidad,
+            subtotal=subtotal
+        )
+        producto.stock -= cantidad
+        db.add(detalle)
+        db.commit()
+
+    nueva_venta.totalsale = total
+    db.commit()
+
+    return RedirectResponse(url="/ventas/crear", status_code=303)
+
+
 
 # Crear las tablas
 Base.metadata.create_all(bind=engine)
@@ -47,6 +112,8 @@ app.include_router(category.router)
 app.include_router(sale.router)
 app.include_router(shopping.router)
 app.include_router(suppliers.router)
+app.include_router(router)
+
 
 
 

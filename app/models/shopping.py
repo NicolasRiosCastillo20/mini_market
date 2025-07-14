@@ -10,8 +10,9 @@ class Shopping(Base):
     shopping_date = Column(Date)
     total_shopping = Column(Float)
 
-
     details = relationship("ShoppingDetail", back_populates="shopping")
     supplier = relationship("Supplier", back_populates="shopping")
-
+    
+    # 🔧 Cambiado de product → products
+    products = relationship("Product", back_populates="shopping")
 

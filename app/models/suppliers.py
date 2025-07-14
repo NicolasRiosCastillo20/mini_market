@@ -6,7 +6,7 @@ class Supplier(Base):
     __tablename__ = "supplier"
 
     id_supplier = Column(Integer, primary_key=True, index=True)
-    suppliers = Column(String(255))
+    name = Column(String(255))
     telephone = Column(String(100))
 
     shopping = relationship("Shopping", back_populates="supplier")
