@@ -8,7 +8,7 @@ class SupplierCreate(BaseModel):
 
 class SupplierOut(BaseModel):
     id_supplier: int
-    suppliers: str
+    supplier_name: str
     telephone: str
 
     class Config:

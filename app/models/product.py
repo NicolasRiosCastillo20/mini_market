@@ -21,6 +21,8 @@ class   Product(Base):
 
     details = relationship("SaleDetail", back_populates="product")
     shoppingDetail = relationship("ShoppingDetail", back_populates="product")
+    category = relationship("Category", back_populates="products")  # ✅ relación inversa
+    
 
 
 

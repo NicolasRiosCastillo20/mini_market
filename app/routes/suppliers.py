@@ -5,7 +5,7 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session, joinedload
 from app.models.suppliers import Supplier
 from app.models import Supplier, Shopping, ShoppingDetail, Product
-
+from app.models.category import Category
 from datetime import datetime   
 from app.schemas.suppliers import SupplierCreate, SupplierOut
 from app.config.db import get_db
@@ -32,7 +32,7 @@ def get_suppliers(db: Session = Depends(get_db)):
 @router.post('/', response_model=SupplierOut)
 def create_supplier(supplier_data: SupplierCreate, db: Session = Depends(get_db)):
     new_supplier = Supplier(
-        suppliers=supplier_data.suppliers,
+        supplier_name=supplier_data.supplier_name,
         telephone=supplier_data.telephone
     )
 
@@ -51,7 +51,7 @@ def update_supplier(supplier_id: int, supplier_data: SupplierCreate, db: Session
     if not supplier:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Proveedor no encontrado")
 
-    supplier.suppliers = supplier_data.suppliers
+    supplier.supplier_name = supplier_data.suppliers
     supplier.telephone = supplier_data.telephone
 
     db.commit()
@@ -72,6 +72,8 @@ def delete_supplier(supplier_id: int, db: Session = Depends(get_db)):
     db.commit()
     return None
 
+# Registrar ingreso de productos
+
 @router.post("/registrar")
 def registrar_ingreso(
     fecha_ingreso: str = Form(...),
@@ -80,70 +82,53 @@ def registrar_ingreso(
     cantidades: list[int] = Form(...),
     precios: list[float] = Form(...),
     precio_venta: list[float] = Form(...),
+    categorias: list[str] = Form(...),
     db: Session = Depends(get_db)
 ):
-    proveedor = db.query(Supplier).filter(Supplier.suppliers == proveedor_nombre).first()
+    proveedor = db.query(Supplier).filter(Supplier.supplier_name == proveedor_nombre).first()
     if not proveedor:
-        proveedor = Supplier(suppliers=proveedor_nombre)
+        proveedor = Supplier(supplier_name=proveedor_nombre)
         db.add(proveedor)
         db.commit()
         db.refresh(proveedor)
 
-    # Crear ingreso (Shopping)
     total_shopping = 0.0
     nuevo_ingreso = Shopping(shopping_date=fecha_ingreso, id_supplier=proveedor.id_supplier, total_shopping=0.0)
     db.add(nuevo_ingreso)
     db.commit()
     db.refresh(nuevo_ingreso)
 
-    # Agregar productos
-    for nombre, cantidad, precio_compra, precio_venta_unitario in zip(productos, cantidades, precios, precio_venta):
-        total_shopping += cantidad * precio_compra  # Sumar al total
+    for nombre, cantidad, precio_compra, precio_venta_unitario, nombre_categoria in zip(productos, cantidades, precios, precio_venta, categorias):
+        total_shopping += cantidad * precio_compra
+
+        categoria = db.query(Category).filter(Category.category == nombre_categoria).first()
+        if not categoria:
+            categoria = Category(category=nombre_categoria)
+            db.add(categoria)
+            db.commit()
+            db.refresh(categoria)
 
         producto = Product(
             product=nombre,
             stock=cantidad,
             shopping_price=precio_compra,
             sale_price=precio_venta_unitario,
-            id_shopping=nuevo_ingreso.id_shopping
+            id_shopping=nuevo_ingreso.id_shopping,
+            id_category=categoria.id_category
         )
         db.add(producto)
-
-    # Actualizar total_shopping
-    nuevo_ingreso.total_shopping = total_shopping
-    db.commit()
-
-    entrada = Shopping(shopping_date=datetime.strptime(fecha_ingreso, "%Y-%m-%d"), id_supplier=proveedor.id_supplier)
-    db.add(entrada)
-    db.commit()
-    db.refresh(entrada)
-
-    for nombre, cantidad, precio, p_venta in zip(productos, cantidades, precios, precio_venta):
-        producto = db.query(Product).filter(Product.product == nombre).first()
-        if not producto:
-            producto = Product(
-                product=nombre,
-                stock=cantidad,  # ✅ aquí usamos solo la cantidad de este producto
-                sale_price=p_venta,
-                shopping_price=precio
-            )
-            db.add(producto)
-            db.commit()
-            db.refresh(producto)
-        else:
-            producto.stock += cantidad
-            producto.shopping_price = precio
-            producto.sale_price = p_venta
-            db.commit()
+        db.commit()
+        db.refresh(producto)
 
         detalle = ShoppingDetail(
-            id_shopping=entrada.id_shopping,
+            id_shopping=nuevo_ingreso.id_shopping,
             id_product=producto.id_product,
             quantity=cantidad,
-            subtotal=precio
+            subtotal=precio_compra * cantidad
         )
         db.add(detalle)
 
+    nuevo_ingreso.total_shopping = total_shopping
     db.commit()
 
     return RedirectResponse(url="/productos", status_code=303)
