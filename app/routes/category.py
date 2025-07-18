@@ -1,17 +1,28 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi.responses import JSONResponse, HTMLResponse
+from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from app.models.category import Category
+from app.models import Supplier
 from app.schemas.category import CategoryCreate, CategoryOut
 from app.config.db import get_db
 from typing import List
 
 router = APIRouter(prefix='/category', tags=['category'])
+templates = Jinja2Templates(directory="app/templates")  # Ajusta si tu ruta real es diferente
 
 # listar todas las categorias
 @router.get("/", response_model=List[CategoryOut])
 def get_categorys(db: Session = Depends(get_db)):
     return db.query(Category).all()
 
+@router.get("/proveedores")
+def mostrar_proveedores(request: Request, db: Session = Depends(get_db)):
+    proveedores = db.query(Supplier).all()
+    return templates.TemplateResponse("proveedores.html", {
+        "request": request,
+        "proveedores": proveedores
+    })
 
 # listar una categoria por parametro de url
 @router.get("/{id_category}", response_model=CategoryOut)
@@ -72,4 +83,29 @@ def delete_category(id_category: int, db: Session = Depends(get_db)):
      return {
         "success": True,
         "message": f"Categoría con ID {id_category} eliminada exitosamente."
+    }
+
+# Vista HTML: Mostrar proveedores
+# ========================
+
+@router.get("/supplier/search")
+def buscar_proveedor(name: str, db: Session = Depends(get_db)):
+    proveedor = db.query(Supplier).filter(Supplier.supplier_name == name).first()
+    
+    if not proveedor:
+        return JSONResponse(content={"success": False}, status_code=404)
+
+    # Lógica ficticia para simular archivos adjuntos
+    archivos = [
+        {"filename": "factura1.pdf", "originalName": "Factura enero"},
+        {"filename": "factura2.pdf", "originalName": "Factura febrero"},
+    ]
+
+    return {
+        "success": True,
+        "supplier": {
+            "name": proveedor.supplier_name,
+            "phone": proveedor.telephone
+        },
+        "files": archivos
     }

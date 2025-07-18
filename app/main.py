@@ -8,8 +8,10 @@ from sqlalchemy.orm import Session
 from app.models.product import Product
 from app.models.sale import Sale
 from app.models.saledetail import SaleDetail
-from app.routes import user,product,category, sale, shopping, suppliers
+from app.routes import user,product,category, sale, shopping, suppliers, shopping, ingresos
+from app.routes.suppliers import router as suppliers_router
 from app.config.db import Base, engine, SessionLocal
+from fastapi.middleware.cors import CORSMiddleware
 
 
 app = FastAPI()
@@ -99,7 +101,13 @@ def crear_venta_formulario(
 
     return RedirectResponse(url="/ventas/crear", status_code=303)
 
-
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Cambia esto a ["http://localhost"] si es necesario
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Crear las tablas
 Base.metadata.create_all(bind=engine)
@@ -112,7 +120,9 @@ app.include_router(category.router)
 app.include_router(sale.router)
 app.include_router(shopping.router)
 app.include_router(suppliers.router)
-app.include_router(router)
+app.include_router(ingresos.router)
+app.include_router(suppliers_router)
+
 
 
 

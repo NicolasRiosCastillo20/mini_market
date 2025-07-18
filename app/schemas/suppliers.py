@@ -3,7 +3,7 @@ from datetime import date
 from app.models.suppliers import Supplier
 
 class SupplierCreate(BaseModel):
-    suppliers: str
+    supplier_name: str
     telephone: str
 
 class SupplierOut(BaseModel):

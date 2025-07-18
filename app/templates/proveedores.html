@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Proveedores</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            color: #0056b3;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        form {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        input[type="text"],
+        input[type="tel"],
+        input[type="file"] {
+            width: calc(100% - 22px); /* Adjust for padding and border */
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1em;
+        }
+        input[type="file"] {
+            padding: 5px; /* Adjust padding for file input */
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result-section {
+            margin-top: 20px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+        .file-list li {
+            list-style-type: disc;
+            margin-left: 20px;
+            margin-bottom: 5px;
+        }
+        .error-message {
+            color: red;
+            font-weight: bold;
+            margin-top: -10px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Sistema de Gestión de Proveedores</h1>
+
+        ---
+
+        <h2>Agregar Nuevo Proveedor</h2>
+        <form id="addSupplierForm" action="/ingresos/supplier/create" method="POST" enctype="multipart/form-data">
+            <label for="supplierName">Nombre del Proveedor:</label>
+            <input type="text" id="supplierName" name="supplierName" required>
+
+            <label for="supplierPhone">Teléfono:</label>
+            <input type="tel" id="supplierPhone" name="supplierPhone" required>
+
+            <label for="supplierDocument">Adjuntar Factura (PDF, máximo 3 MB):</label>
+            <input type="file" id="supplierDocument" name="supplierDocument" accept="application/pdf">
+            <p class="error-message" id="fileSizeError" style="display:none;">El archivo no debe superar los 3 MB.</p>
+
+            <button type="submit">Agregar Proveedor</button>
+        </form>
+
+        ---
+
+        <h2>Consultar Proveedor</h2>
+        <form id="searchSupplierForm">
+            <label for="searchName">Nombre del Proveedor a Consultar:</label>
+            <input type="text" id="searchName" name="searchName" placeholder="Ej: Distribuciones ABC" required>
+            <button type="submit">Consultar Proveedor</button>
+        </form>
+
+        <div class="result-section">
+            <h3>Resultados de la Consulta:</h3>
+            <p id="consultationStatus">Introduce un nombre para consultar.</p>
+            <div id="supplierInfo" style="display:none;">
+                <p><strong>Nombre:</strong> <span id="displaySupplierName"></span></p>
+                <p><strong>Teléfono:</strong> <span id="displaySupplierPhone"></span></p>
+                <h4>Facturas Adjuntas:</h4>
+                <ul id="attachedFiles" class="file-list">
+                    </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Lógica JavaScript (CLIENTE) ---
+
+        const addSupplierForm = document.getElementById('addSupplierForm');
+        const supplierDocumentInput = document.getElementById('supplierDocument');
+        const fileSizeError = document.getElementById('fileSizeError');
+
+        // Validación de tamaño de archivo antes de enviar el formulario de agregar
+        addSupplierForm.addEventListener('submit', function(event) {
+            if (supplierDocumentInput.files.length > 0) {
+                const fileSize = supplierDocumentInput.files[0].size; // size in bytes
+                const maxSize = 3 * 1024 * 1024; // 3 MB in bytes
+
+                if (fileSize > maxSize) {
+                    fileSizeError.style.display = 'block';
+                    event.preventDefault(); // Evita que el formulario se envíe
+                } else {
+                    fileSizeError.style.display = 'none';
+                }
+            }
+        });
+
+        // Lógica para el formulario de consulta (se requiere AJAX y un backend)
+        const searchSupplierForm = document.getElementById('searchSupplierForm');
+        const searchNameInput = document.getElementById('searchName');
+        const consultationStatus = document.getElementById('consultationStatus');
+        const supplierInfoDiv = document.getElementById('supplierInfo');
+        const displaySupplierName = document.getElementById('displaySupplierName');
+        const displaySupplierPhone = document.getElementById('displaySupplierPhone');
+        const attachedFilesList = document.getElementById('attachedFiles');
+
+        searchSupplierForm.addEventListener('submit', function(event) {
+            event.preventDefault(); // Evita la recarga de la página
+
+            const supplierNameToSearch = searchNameInput.value;
+            consultationStatus.textContent = 'Consultando...';
+            supplierInfoDiv.style.display = 'none';
+            attachedFilesList.innerHTML = ''; // Limpiar lista de archivos
+
+            // --- AQUÍ VA LA LÓGICA AJAX PARA CONECTARSE AL BACKEND ---
+            // Ejemplo (pseudo-código):
+            fetch(`http://localhost:8000/supplier/search?name=${encodeURIComponent(supplierNameToSearch)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        displaySupplierName.textContent = data.supplier.name;
+                        displaySupplierPhone.textContent = data.supplier.phone;
+                        consultationStatus.textContent = '';
+                        supplierInfoDiv.style.display = 'block';
+
+                        if (data.files && data.files.length > 0) {
+                            data.files.forEach(file => {
+                                const listItem = document.createElement('li');
+                                // El enlace real dependerá de cómo sirvas los archivos desde tu backend
+                                listItem.innerHTML = `<a href="backend/files/${file.filename}" target="_blank">${file.originalName}</a>`;
+                                attachedFilesList.appendChild(listItem);
+                            });
+                        } else {
+                            attachedFilesList.innerHTML = '<li>No hay facturas adjuntas para este proveedor.</li>';
+                        }
+
+                    } else {
+                        consultationStatus.textContent = `Proveedor "${supplierNameToSearch}" no encontrado.`;
+                        supplierInfoDiv.style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error al consultar proveedor:', error);
+                    consultationStatus.textContent = 'Ocurrió un error al consultar. Inténtalo de nuevo.';
+                    supplierInfoDiv.style.display = 'none';
+                });
+            // --- FIN DE LA LÓGICA AJAX ---
+        });
+    </script>
+</body>
+</html>

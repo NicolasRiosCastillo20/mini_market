@@ -16,42 +16,52 @@
             <input type="date" class="form-control" id="fecha_ingreso" name="fecha_ingreso" required>
         </div>
 
+        <!-- Selector de proveedor -->
         <div class="mb-3">
-            <label for="proveedor" class="form-label">Proveedor</label>
-            <input type="text" class="form-control" id="proveedor" name="proveedor_nombre" placeholder="Nombre del proveedor" required>
+            <label for="proveedor_select" class="form-label">Proveedor</label>
+            <select class="form-select" id="proveedor_select" name="proveedor_nombre" required>
+                <option value="" selected disabled>Seleccione un proveedor</option>
+                {% for proveedor in proveedores %}
+                    <option value="{{ proveedor.supplier_name }}">{{ proveedor.supplier_name }}</option>
+                {% endfor %}
+            </select>
         </div>
 
         <hr>
-
         <h5>Productos</h5>
+
         <div id="productos-container">
             <div class="row mb-3 producto-item">
-                <div class="col-md-5">
+                <div class="col-md-4">
                     <label class="form-label">Nombre del Producto</label>
-                    <input type="text" name="productos" class="form-control" placeholder="Ej: Arroz" required>
+                    <input type="text" name="productos[]" class="form-control" placeholder="Ej: Arroz" required>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <label class="form-label">Cantidad</label>
-                    <input type="number" name="cantidades" class="form-control" min="1" required>
+                    <input type="number" name="cantidades[]" class="form-control" min="1" required>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-2">
                     <label class="form-label">Precio Compra</label>
-                    <input type="number" name="precios" class="form-control" step="0.01" min="0" required>
+                    <input type="number" name="precios[]" class="form-control" step="0.01" min="0" required>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-2">
                     <label class="form-label">Precio Venta</label>
-                    <input type="number" name="precio_venta" class="form-control" step="0.01" min="0" required>
+                    <input type="number" name="precio_venta[]" class="form-control" step="0.01" min="0" required>
                 </div>
                 <div class="col-md-2">
                     <label class="form-label">Categoría</label>
-                    <input type="text" name="categorias" class="form-control" placeholder="Ej: Aseo" required>
+                    <select class="form-select categoria-select" name="categorias[]" required>
+                        <option value="" disabled selected>Seleccione categoría</option>
+                        {% for categoria in categorias %}
+                            <option value="{{ categoria.category }}">{{ categoria.category }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
             </div>
         </div>
 
         <button type="button" class="btn btn-secondary mb-3" onclick="agregarProducto()">+ Añadir otro producto</button>
         <br>
-
         <button type="submit" class="btn btn-primary">Registrar Ingreso</button>
         <a href="/" class="btn btn-outline-secondary">Home</a>
     </form>
@@ -62,8 +72,9 @@ function agregarProducto() {
     const container = document.getElementById('productos-container');
     const nuevoProducto = container.firstElementChild.cloneNode(true);
 
-    // Limpiar los campos del nuevo producto
+    // Limpiar los inputs
     nuevoProducto.querySelectorAll('input').forEach(input => input.value = '');
+    nuevoProducto.querySelectorAll('select').forEach(select => select.selectedIndex = 0);
 
     container.appendChild(nuevoProducto);
 }
@@ -71,3 +82,4 @@ function agregarProducto() {
 
 </body>
 </html>
+
