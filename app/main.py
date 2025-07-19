@@ -23,6 +23,7 @@ templates = Jinja2Templates(directory="app/templates")
 # Montar carpeta static
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/supplier/files", StaticFiles(directory="app/uploaded_files"), name="supplier_files")
 
 # Configuración de la ruta para la página de inicio
 

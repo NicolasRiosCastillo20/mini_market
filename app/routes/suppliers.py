@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Request, Form, File, UploadFile, Query
-from fastapi.responses import RedirectResponse, JSONResponse
+from fastapi.responses import RedirectResponse, JSONResponse, FileResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from typing import List
@@ -11,9 +11,14 @@ from app.config.db import get_db
 import os
 import shutil
 from uuid import uuid4
+from fastapi.staticfiles import StaticFiles
+from fastapi import FastAPI
 
+UPLOAD_FOLDER = "app/uploaded_files"
+app = FastAPI()
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")  # Ajusta si tu ruta real es diferente
+app.mount("/supplier/files", StaticFiles(directory="app/uploaded_files"), name="supplier_files")
 
 # =========================
 # Obtener lista de proveedores
@@ -23,11 +28,19 @@ def get_suppliers(db: Session = Depends(get_db)):
     return db.query(Supplier).all()
 
 @router.get("/supplier/search")
-def buscar_proveedor(name: str = Query(...), db: Session = Depends(get_db)):
+def buscar_proveedor(name: str, db: Session = Depends(get_db)):
     proveedor = db.query(Supplier).filter(Supplier.supplier_name == name).first()
 
     if not proveedor:
-        return {"success": False, "message": f"Proveedor '{name}' no encontrado"}
+        return {"success": False, "message": "Proveedor no encontrado"}
+
+    # Enviar también la ruta del documento
+    files = []
+    if proveedor.document_filename:
+        files.append({
+            "filename": proveedor.document_filename,
+            "originalName": proveedor.document_filename  # o puedes guardar el nombre original también si lo quieres
+        })
 
     return {
         "success": True,
@@ -35,13 +48,20 @@ def buscar_proveedor(name: str = Query(...), db: Session = Depends(get_db)):
             "name": proveedor.supplier_name,
             "phone": proveedor.telephone
         },
-        "files": []  # Puedes agregar aquí lógica si manejas archivos PDF
+        "files": files
     }
+
+
+# @router.get("/supplier/files/{filename}")
+# def obtener_documento(filename: str):
+#     file_path = os.path.join(UPLOAD_FOLDER, filename)
+#     if not os.path.exists(file_path):
+#         raise HTTPException(status_code=404, detail="Archivo no encontrado")
+#     return FileResponse(path=file_path, filename=filename, media_type="application/pdf")
 
 # =========================
 # Crear proveedor
 # =========================
-UPLOAD_FOLDER = "uploaded_files"  # puedes cambiar esta ruta
 
 @router.post("/ingresos/supplier/create")
 async def crear_supplier(
@@ -50,18 +70,26 @@ async def crear_supplier(
     supplierDocument: UploadFile = File(None),
     db: Session = Depends(get_db)
 ):
+    # Crear proveedor
     nuevo_proveedor = Supplier(supplier_name=supplierName, telephone=supplierPhone)
     db.add(nuevo_proveedor)
     db.commit()
-    db.refresh(nuevo_proveedor)
+    db.refresh(nuevo_proveedor)  # Ahora ya tiene id_supplier
 
     if supplierDocument and supplierDocument.filename:
         os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-        extension = os.path.splitext(supplierDocument.filename)[1]
-        nuevo_nombre = f"{uuid4().hex}_{nuevo_proveedor.id_supplier}{extension}"
-        ruta_archivo = os.path.join(UPLOAD_FOLDER, nuevo_nombre)
+
+        extension = os.path.splitext(supplierDocument.filename)[1] or ".pdf"
+        nombre_archivo = f"{uuid4().hex}_{nuevo_proveedor.id_supplier}{extension}"
+        ruta_archivo = os.path.join(UPLOAD_FOLDER, nombre_archivo)
+
         with open(ruta_archivo, "wb") as buffer:
             shutil.copyfileobj(supplierDocument.file, buffer)
+
+        # Guardar nombre del archivo en el proveedor
+        nuevo_proveedor.document_filename = nombre_archivo
+        db.commit()
+
 
     return RedirectResponse(url="/category/proveedores", status_code=303)
 

@@ -99,8 +99,9 @@
             <p class="error-message" id="fileSizeError" style="display:none;">El archivo no debe superar los 3 MB.</p>
 
             <button type="submit">Agregar Proveedor</button>
+            
         </form>
-
+            
         ---
 
         <h2>Consultar Proveedor</h2>
@@ -177,7 +178,7 @@
                             data.files.forEach(file => {
                                 const listItem = document.createElement('li');
                                 // El enlace real dependerá de cómo sirvas los archivos desde tu backend
-                                listItem.innerHTML = `<a href="backend/files/${file.filename}" target="_blank">${file.originalName}</a>`;
+                                listItem.innerHTML = `<a href="/ingresos/supplier/files/${file.filename}" target="_blank">${file.originalName}</a>`;
                                 attachedFilesList.appendChild(listItem);
                             });
                         } else {
