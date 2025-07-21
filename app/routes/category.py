@@ -12,7 +12,7 @@ router = APIRouter(prefix='/category', tags=['category'])
 templates = Jinja2Templates(directory="app/templates")  # Ajusta si tu ruta real es diferente
 
 # listar todas las categorias
-@router.get("/", response_model=List[CategoryOut])
+@router.get("/category_list", response_model=List[CategoryOut])
 def get_categorys(db: Session = Depends(get_db)):
     return db.query(Category).all()
 

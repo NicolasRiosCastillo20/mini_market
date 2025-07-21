@@ -19,6 +19,7 @@ app = FastAPI()
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")  # Ajusta si tu ruta real es diferente
 app.mount("/supplier/files", StaticFiles(directory="app/uploaded_files"), name="supplier_files")
+# router = APIRouter(prefix="/ingresos")
 
 # =========================
 # Obtener lista de proveedores
@@ -135,6 +136,11 @@ def mostrar_formulario_ingreso(request: Request, db: Session = Depends(get_db)):
         "categorias": categorias
     })
 
+@router.get("/categorias", response_model=list[str])
+def obtener_categorias(db: Session = Depends(get_db)):
+    categorias = db.query(Category).all()
+    return [cat.category for cat in categorias]
+
 # =========================
 # Registrar ingreso POST
 # =========================
@@ -199,4 +205,4 @@ def registrar_ingreso(
     nuevo_ingreso.total_shopping = total_shopping
     db.commit()
 
-    return RedirectResponse(url="/productos", status_code=303)
+    return RedirectResponse(url="/formulario", status_code=303)
