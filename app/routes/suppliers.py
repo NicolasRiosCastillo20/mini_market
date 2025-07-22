@@ -110,6 +110,21 @@ def update_supplier(supplier_id: int, supplier_data: SupplierCreate, db: Session
     db.refresh(supplier)
     return supplier
 
+@router.put("/supplier/update")
+def actualizar_proveedor(data: dict, db: Session = Depends(get_db)):
+    original_name = data.get("original_name")
+    new_name = data.get("new_name")
+    new_phone = data.get("new_phone")
+
+    proveedor = db.query(Supplier).filter(Supplier.supplier_name == original_name).first()
+    if not proveedor:
+        return {"success": False, "message": "Proveedor no encontrado"}
+
+    proveedor.supplier_name = new_name
+    proveedor.telephone = new_phone
+    db.commit()
+    return {"success": True}
+
 # =========================
 # Eliminar proveedor
 # =========================

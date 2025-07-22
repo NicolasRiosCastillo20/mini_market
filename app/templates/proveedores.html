@@ -35,6 +35,7 @@
             <label for="searchName">Nombre del Proveedor a Consultar:</label>
             <input type="text" id="searchName" name="searchName" placeholder="Ej: Distribuciones ABC" required>
             <button type="submit">Consultar Proveedor</button>
+            <button id="editButton" style="margin-top: 10px;">Modificar</button>
         </form>
 
         <div class="result-section">
@@ -48,6 +49,23 @@
                     </ul>
             </div>
         </div>
+    </div>
+
+    
+
+    <div id="editSupplierForm" style="display: none; margin-top: 20px;">
+    <h4>Modificar Proveedor</h4>
+        <form id="modifyForm">
+            <label for="editName">Nuevo Nombre:</label>
+            <input type="text" id="editName" name="editName" required>
+
+            <label for="editPhone">Nuevo Teléfono:</label>
+            <input type="tel" id="editPhone" name="editPhone" required>
+
+            <input type="hidden" id="originalName" name="originalName"> <!-- Para saber qué proveedor se está modificando -->
+
+            <button type="submit">Guardar Cambios</button>
+        </form>
     </div>
 
     <script>
@@ -149,6 +167,56 @@
                 });
             // --- FIN DE LA LÓGICA AJAX ---
         });
+        // Lógica para el botón de modificar proveedor
+
+    const editButton = document.getElementById('editButton');
+    const editSupplierForm = document.getElementById('editSupplierForm');
+    const editName = document.getElementById('editName');
+    const editPhone = document.getElementById('editPhone');
+    const originalName = document.getElementById('originalName');
+    const modifyForm = document.getElementById('modifyForm');
+
+    // Mostrar formulario de edición al hacer clic en "Modificar"
+    editButton.addEventListener('click', function () {
+        editName.value = displaySupplierName.textContent;
+        editPhone.value = displaySupplierPhone.textContent;
+        originalName.value = displaySupplierName.textContent;
+        editSupplierForm.style.display = 'block';
+    });
+
+    // Enviar los cambios al backend
+    modifyForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        const payload = {
+            original_name: originalName.value,
+            new_name: editName.value,
+            new_phone: editPhone.value
+        };
+
+        fetch('/supplier/update', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                alert("Proveedor actualizado correctamente.");
+                displaySupplierName.textContent = editName.value;
+                displaySupplierPhone.textContent = editPhone.value;
+                editSupplierForm.style.display = 'none';
+            } else {
+                alert("Error al actualizar proveedor.");
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            alert("Ocurrió un error al actualizar.");
+        });
+    });
     </script>
 </body>
 </html>
