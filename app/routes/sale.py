@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Form
+from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session, joinedload
 from app.models.sale import Sale
 from app.schemas.sale import SaleCreate, SaleOut, SaleFull
@@ -9,10 +10,13 @@ from typing import List
 
 router = APIRouter(prefix='/sale', tags=['sale'])
 
+# Llamar ventas
+
 @router.get('/', response_model=List[SaleOut])
 def get_sales(db:Session = Depends(get_db)):
     return db.query(Sale).all()
 
+# Llamar venta por ID
 
 @router.get('/{id_sale}', response_model=SaleFull)
 def get_sale(id_sale:int, db:Session = Depends(get_db)):
@@ -21,8 +25,9 @@ def get_sale(id_sale:int, db:Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Venta no encontrada")
     return sale
 
+# Crear venta
 
-@router.post('/', response_model=SaleOut)
+@router.post('/ventas/registrar', response_model=SaleOut)
 def create_sale(sale_data:SaleCreate ,db:Session = Depends(get_db)):
     new_sale = Sale(
         datesale = sale_data.datesale,
@@ -71,4 +76,5 @@ def create_sale(sale_data:SaleCreate ,db:Session = Depends(get_db)):
 
     return new_sale
             
+
 

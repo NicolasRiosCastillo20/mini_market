@@ -8,6 +8,7 @@ class UserOut(BaseModel):
     id: int
     name: str
     email: EmailStr
+    hashed_password: str
 
     class Config:
         orm_mode = True

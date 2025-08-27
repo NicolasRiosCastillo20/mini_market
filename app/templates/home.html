@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Home SISVENT</title>
+    <!--<link rel="stylesheet" href="/static/css/styles.css"> -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Puedes usar Bootstrap si lo prefieres -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">Variedades LULU</a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav ms-auto">
+                    <!-- <li class="nav-item"><a class="nav-link" href="/productos">Productos</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/ventas.html">Ventas</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/clientes">Clientes</a></li> -->
+                    <li class="nav-item"><a class="nav-link" href="/logout">Salir</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <header class="py-5 bg-primary text-white text-center">
+        <div class="container">
+            <h1 class="display-4">Bienvenido a SISVENT</h1>
+            <p class="lead">Administra tus productos, ventas y proveedores fácilmente.</p>
+        </div>
+    </header>
+
+    <main class="container py-4">
+        <div class="row text-center">
+            <div class="col-md-4 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">Productos</h5>
+                        <p class="card-text">Agrega tus productos al inventario.</p>
+                        <a href="/formulario" class="btn btn-outline-primary">Ingresar productos al inventario</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">Ventas</h5>
+                        <p class="card-text">Registra tus ventas.</p>
+                        <a href="/ventas/crear" class="btn btn-outline-success">Registrar ventas</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">Proveedores</h5>
+                        <p class="card-text">Administra tus proveedores y almacena facturas.</p>
+                        <a href="category/proveedores" class="btn btn-outline-warning">Ingresar o modificar proveedores</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="text-center text-muted py-3">
+        &copy; {{ current_year }} Variedades LULU. Todos los derechos reservados.
+    </footer>
+
+</body>
+</html>

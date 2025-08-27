@@ -1,0 +1,169 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 20px;
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+}
+
+form {
+    max-width: 800px;
+    margin: auto;
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+fieldset {
+    border: none;
+    margin-bottom: 20px;
+}
+
+legend {
+    font-weight: bold;
+    font-size: 1.2em;
+    margin-bottom: 15px;
+    color: #2c3e50;
+}
+
+label {
+    display: block;
+    margin-top: 15px;
+    font-weight: 500;
+    color: #333;
+}
+
+input[type="number"],
+input[type="date"],
+select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+
+select option[disabled] {
+    color: #888;
+}
+
+input[readonly] {
+    background-color: #eaeaea;
+}
+
+button {
+    margin-top: 20px;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 6px;
+    background-color: #3498db;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #2980b9;
+}
+
+button[type="reset"] {
+    background-color: #e74c3c;
+}
+
+button[type="reset"]:hover {
+    background-color: #c0392b;
+}
+
+#tabla-detalle {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+#tabla-detalle th,
+#tabla-detalle td {
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #ccc;
+}
+
+#tabla-detalle th {
+    background-color: #f1f1f1;
+}
+
+.eliminar-item {
+    background-color: #e67e22;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.eliminar-item:hover {
+    background-color: #d35400;
+}
+
+#total_general {
+    font-weight: bold;
+    background-color: #e8f6f3;
+    color: #2c3e50;
+}
+
+/* Layout de columnas responsivo */
+/* .col-md-4 {
+    width: 100%;
+    max-width: 32%;
+    margin-bottom: 1rem;
+    padding: 0 1rem;
+    box-sizing: border-box;
+} */
+
+/* Tarjeta con sombra */
+.card {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Cuerpo de la tarjeta */
+.card-body {
+    padding: 1rem;
+    text-align: center;
+}
+
+/* Botón estilo "outline-success" */
+.btn {
+    display: inline-block;
+    font-size: 1rem;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    border: 2px solid transparent;
+    font-weight: bold;
+}
+
+/* Botón outline-success */
+.btn-outline-success {
+    color: #28a745;
+    border-color: #28a745;
+    background-color: transparent;
+}
+
+.btn-outline-success:hover {
+    background-color: #28a745;
+    color: #fff;
+}
+
